@@ -7,6 +7,9 @@
 <link rel="icon" href="img/icon.png">
 <link rel="stylesheet" href="css/bulma.min.css">
 <link rel="stylesheet" href="css/styles.css">
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+<script src="js/script.js"></script>
 </head>
 
 <body>
@@ -18,24 +21,27 @@
 	<div class="container is-widescreen">
 		<div class="columns is-vcentered">
 			<div class="column">
-				<button id="btnUsuarios"
-					class="button is-primary is-light is-fullwidth"
+				<button id="btnUsuarios" class="button is-primary is-fullwidth"
 					onclick="getAllUsers()">Ver usuarios</button>
 			</div>
 			<div class="column">
-				<button id="btnFotos" class="button is-link is-light is-fullwidth"
+				<button id="btnFotos" class="button is-link is-fullwidth"
 					onclick="getAllPhotos()">Ver fotos</button>
 			</div>
 			<div class="column">
-				<button id="btnAlbumes"
-					class="button is-success is-light is-fullwidth"
+				<button id="btnAlbumes" class="button is-success is-fullwidth"
 					onclick="getAllUsers()">Ver álbumes</button>
 			</div>
-		</div>
+		</div>			
 
 		<div id="content"></div>
 	</div>
 
-	<script src="js/script.js"></script>
+	<div class="modal">
+		<div class="modal-background"></div>
+		<div class="modal-content" id="modalContent">			
+		</div>
+	</div>
+	
 </body>
 </html>

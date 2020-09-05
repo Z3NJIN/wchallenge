@@ -8,3 +8,14 @@ h1 {
 	width: 100%;
 	text-align: center;
 }
+
+.modal-content {    
+    width: 80%;
+    overflow: hidden;
+}
+
+/*#map{
+	position: absolute;
+	width: 400px; 
+	height: 300px;
+}*/
