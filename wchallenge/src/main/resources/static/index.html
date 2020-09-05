@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>Hello World</title>
-	<link rel="shortcut icon" href="">
-	<link rel="stylesheet" href="css/bulma.min.css">
-	<link rel="stylesheet" href="css/styles.css">
+<meta charset="utf-8">
+<title>Wchallenge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="img/icon.png">
+<link rel="stylesheet" href="css/bulma.min.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 
-	<body>
-		<div class="container is-widescreen">
-			<h1 class="title">Wchallenge</h1>
-			<div class="columns">
-				<div class="column is-6">
-					<input id="name" class="input" type="text">
-				</div>
-				<div class="column is-6">
-					<button id="button" class="button is-primary" onclick="getHello()">Hello</button>				
-				</div>
+<body>
+
+	<nav class="level">
+		<h1 class="title">Wchallenge</h1>
+	</nav>
+
+	<div class="container is-widescreen">
+		<div class="columns is-vcentered">
+			<div class="column">
+				<button id="btnUsuarios"
+					class="button is-primary is-light is-fullwidth"
+					onclick="getAllUsers()">Ver usuarios</button>
 			</div>
-			
-			<div class="columns">
-				<div class="column is-12">
-					<p>Message: <span id="spanMessage"></span></p>
-				</div>
+			<div class="column">
+				<button id="btnFotos" class="button is-link is-light is-fullwidth"
+					onclick="getAllPhotos()">Ver fotos</button>
 			</div>
-			
-			<div class="columns">
-				<div class="column is-6">
-					<button id="button" class="button is-primary" onclick="getQuote()">Quotes</button>
-				</div>
-			</div>			
-		</div>	
-		
-		<script src="js/script.js"></script>
-	</body>
+			<div class="column">
+				<button id="btnAlbumes"
+					class="button is-success is-light is-fullwidth"
+					onclick="getAllUsers()">Ver álbumes</button>
+			</div>
+		</div>
+
+		<div id="content"></div>
+	</div>
+
+	<script src="js/script.js"></script>
+</body>
 </html>
