@@ -75,15 +75,16 @@ public class WchallengeApplication {
 		return new ResponseEntity<Object[]>(albums,HttpStatus.OK);
 	}
 	
-	@GetMapping("/album")
-	public ResponseEntity<Object> getAlbum(@RequestParam("albumId") String albumId) {
+	@GetMapping("/album/photos")
+	public ResponseEntity<Object[]> getAlbum(@RequestParam("albumId") String albumId) {
 
-		String url = Constants.API_ENDPOINT + "/albums/" + albumId;
+		String url = Constants.API_ENDPOINT + "/albums/" + albumId + "/photos";
 		
 		RestTemplate restTemplate = new RestTemplate();        
-		Album album = restTemplate.getForObject(url, Album.class);		
-				              
-        return new ResponseEntity<Object>(album, HttpStatus.OK);
+		ResponseEntity<Photo[]> response = restTemplate.getForEntity(url, Photo[].class);   
+		Photo[] photos = response.getBody();
+		
+		return new ResponseEntity<Object[]>(photos,HttpStatus.OK);
 	}
 	
 	@GetMapping("/user/album")

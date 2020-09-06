@@ -9,13 +9,15 @@ h1 {
 	text-align: center;
 }
 
-.modal-content {    
-    width: 80%;
-    overflow: hidden;
+.modal-content {
+	width: 80%;
+	overflow: hidden;
 }
 
-/*#map{
-	position: absolute;
-	width: 400px; 
-	height: 300px;
-}*/
+.card {
+	border-radius: 5px;
+}
+
+.img-modal {
+	cursor: pointer;
+}
