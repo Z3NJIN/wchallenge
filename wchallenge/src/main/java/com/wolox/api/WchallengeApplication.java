@@ -1,7 +1,9 @@
 package com.wolox.api;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -12,11 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-@SpringBootApplication
+@SpringBootApplication()
 @RestController
 @RequestMapping("/api")
 public class WchallengeApplication {
 	
+	@Autowired
+	private PermisosRepository permisosRepository;
+		
 	@GetMapping("/users")
 	public ResponseEntity<Object[]> getUsers() {
 		
@@ -126,6 +131,26 @@ public class WchallengeApplication {
 		
 		return new ResponseEntity<ArrayList<Object>>(allPhotos,HttpStatus.OK);
 	}	
+	
+	@GetMapping("/shared/albums")
+	public ResponseEntity<ArrayList<Object>> getSharedAlbum(@RequestParam("userId") String userId) {
+
+		List<Permisos> permisos = permisosRepository.findByUserId(Integer.valueOf(userId));
+		
+		RestTemplate restTemplate = new RestTemplate(); 
+		
+		String url;
+		Album album;
+		ArrayList<Object> albums = new ArrayList<Object>();
+		for (Permisos permiso : permisos) {
+			url =  Constants.API_ENDPOINT + "/albums/" + permiso.getAlbumId();
+						
+			album = restTemplate.getForObject(url, Album.class);			
+			albums.add(album);
+		}
+				
+		return new ResponseEntity<ArrayList<Object>>(albums,HttpStatus.OK);
+	}
 	
 	public static void main(String[] args) {
 		SpringApplication.run(WchallengeApplication.class, args);

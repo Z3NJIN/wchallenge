@@ -38,6 +38,11 @@ function getUsers() {
 					+ "<div class='column'><button class='button is-warning is-fullwidth' onclick='getAlbums(" + user.id + ")'>Ver albums</button></div>"
 					+ "<div class='column'><button class='button is-danger is-fullwidth' onclick='getPhotos(\"user\"," + user.id + ")'>Ver fotos</button></div>"
 					+ "</div>"
+					
+					+ "<div class='columns'>"					
+					+ "<div class='column'><button class='button is-success is-fullwidth' onclick='getSharedAlbums(" + user.id + ")'>Ver álbumes compartidos</button></div>"					
+					+ "</div>"
+										
 					+ "</div>"
 					+ "</div>"
 					+ "</div>"
@@ -242,6 +247,44 @@ function getAlbums(userId) {
 		});
 }
 
-function getAlbumPhotos(albumId) {
+function getSharedAlbums(userId) {
+	
+	let btnAlbumes = document.getElementById("btnAlbumes");
+	btnAlbumes.classList.add("is-loading");
+	btnAlbumes.disabled = true;
 
+	let url = "http://localhost:8080/api/shared/albums?userId=" + userId;
+
+	fetch(url, { method: "GET" })
+		.then(response => response.json())
+		.then(data => {
+			let albums = data;
+			var divAlbums = "<div class='columns is-multiline'>";
+
+			albums.forEach((album) => {
+				divAlbums += "<div class='column is-4'>"
+					+ "<div class='card'>"
+					+ "<div class='card-content'>"
+					+ "<div class='media'>"
+					+ "<div class='media-content'>"
+					+ "<p class='title is-4'>ID: " + album.id + "</p>"
+					+ "<p class='subtitle is-6'>" + album.title + "</p>"
+					+ "</div>"
+					+ "</div>"
+					+ "<div class='content'>"
+					+ "<p><b>UserId: </b>" + album.userId + "</p>"
+					+ "<div><button class='button is-info is-fullwidth btn-modal' onclick='getPhotos(\"album\"," + album.id + ")'>Ver fotos</button></div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>";
+			});
+
+			divAlbums += "</div>";
+
+			document.getElementById("content").innerHTML = divAlbums;
+
+			btnAlbumes.classList.remove("is-loading");
+			btnAlbumes.disabled = false;
+		});
 }
