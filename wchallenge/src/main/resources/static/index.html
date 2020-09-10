@@ -30,7 +30,33 @@
 				<button id="btnAlbumes" class="button is-success is-fullwidth"
 					onclick="getAlbums()">Ver álbumes</button>
 			</div>
+		</div>
+		
+		<div class="columns is-vcentered">
+			<div class="column is-4">
+				<input id='inputAlbum' class='input' type='text' placeholder='Album'>
+			</div>
+			<div class="column is-2">
+				<label class='checkbox'><input id='checkLecturaSearch' type='checkbox'> Lectura</label>
+			</div>
+			<div class="column is-2">
+				<label class='checkbox'><input id='checkEscrituraSearch' type='checkbox'> Escritura</label>
+			</div>
+			<div class="column is-4">
+				<button id="btnComment" class="button is-warning is-fullwidth"
+					onclick="searchUsers()">Buscar usuarios</button>
+			</div>		
 		</div>			
+		
+		<div class="columns is-vcentered">
+			<div class="column is-8">
+				<input id='inputCommment' class='input' type='text' placeholder='Nombre'>
+			</div>
+			<div class="column is-4">
+				<button id="btnComment" class="button is-danger is-fullwidth"
+					onclick="getComment()">Ver comentarios</button>
+			</div>		
+		</div>
 
 		<div id="content"></div>
 	</div>

@@ -42,6 +42,9 @@ function getUsers() {
 					+ "<div class='columns'>"
 					+ "<div class='column'><button class='button is-success is-fullwidth' onclick='getSharedAlbums(" + user.id + ")'>Ver álbumes compartidos</button></div>"
 					+ "</div>"
+					+ "<div class='columns'>"
+					+ "<div class='column'><button class='button is-link is-fullwidth' onclick='getComments(" + user.id + ")'>Ver comentarios</button></div>"
+					+ "</div>"
 					+ "</div>"
 					+ "</div>"
 					+ "</div>"
@@ -74,7 +77,7 @@ function getUsers() {
 			}
 		}).catch((e) => {
 			console.log(e.message);
-			alert("Ocurrió un error interno.");
+			alert("Ocurrió un error inesperado.");
 		});
 }
 
@@ -194,7 +197,7 @@ function getPhotos(tipo, id) {
 			}
 		}).catch((e) => {
 			console.log(e.message);
-			alert("Ocurrió un error interno.");
+			alert("Ocurrió un error inesperado.");
 		});
 }
 
@@ -221,13 +224,13 @@ function getAlbums(userId) {
 		.then(response => response.json())
 		.then(data => {
 			let albums = data;
-			showAlbums(albums);
+			showAlbums(albums, false);
 
 			btnAlbumes.classList.remove("is-loading");
 			btnAlbumes.disabled = false;
 		}).catch((e) => {
 			console.log(e.message);
-			alert("Ocurrió un error interno.");
+			alert("Ocurrió un error inesperado.");
 		});
 }
 
@@ -243,19 +246,17 @@ function getSharedAlbums(userId) {
 		.then(response => response.json())
 		.then(data => {
 			let albums = data;
-			showAlbums(albums);
-
-			document.getElementById("content").innerHTML = divAlbums;
+			showAlbums(albums, userId, true);
 
 			btnAlbumes.classList.remove("is-loading");
 			btnAlbumes.disabled = false;
 		}).catch((e) => {
 			console.log(e.message);
-			alert("Ocurrió un error interno.");
+			alert("Ocurrió un error inesperado.");
 		});
 }
 
-function showAlbums(albums) {
+function showAlbums(albums, userId, shared) {
 	let divAlbums = "<div class='columns is-multiline'>";
 
 	albums.forEach((album) => {
@@ -273,8 +274,17 @@ function showAlbums(albums) {
 			+ "<div class='columns'>"
 			+ "<div class='column'><button class='button is-info is-fullwidth' onclick='getPhotos(\"album\"," + album.id + ")'>Ver fotos</button></div>"
 			+ "<div class='column'><button class='button is-warning is-fullwidth btn-modal' onclick='shareAlbum(" + JSON.stringify(album) + ")'>Compartir álbum</button></div>"
-			+ "</div>"
-			+ "</div>"
+			+ "</div>";
+
+		if (shared) {
+			album.userId = userId;
+
+			divAlbums += "<div class='columns'>"
+				+ "<div class='column'><button class='button is-danger is-fullwidth btn-modal' onclick='getSharedAlbum(" + JSON.stringify(album) + ")'>Editar permisos</button></div>"
+				+ "</div>";
+		}
+
+		divAlbums += "</div>"
 			+ "</div>"
 			+ "</div>"
 			+ "</div>";
@@ -304,7 +314,7 @@ function showAlbums(albums) {
 }
 
 function shareAlbum(album) {
-	let divUser =
+	let divAlbum =
 		"<div class='card'>"
 		+ "<div class='card-content'>"
 		+ "<div class='media'>"
@@ -337,7 +347,7 @@ function shareAlbum(album) {
 		+ "</div>"
 		+ "</div>";
 
-	document.getElementById("modalContent").innerHTML = divUser;
+	document.getElementById("modalContent").innerHTML = divAlbum;
 }
 
 function saveSharedAlbum(albumId) {
@@ -376,7 +386,267 @@ function saveSharedAlbum(albumId) {
 			btnCompartir.disabled = false;
 		}).catch((e) => {
 			console.log(e.message);
-			alert("Ocurrió un error interno.");
+			alert("Ocurrió un error inesperado.");
 		});
 
+}
+
+
+function getSharedAlbum(album) {
+
+	let url = urlApi + "/shared/permisos?userId=" + album.userId + "&albumId=" + album.id;
+
+	fetch(url, { method: 'GET' })
+		.then(response => response.json())
+		.then(data => {
+			console.log(data);
+
+			let lectura = (data.permisos.lectura ? "checked" : "");
+			let escritura = (data.permisos.escritura ? "checked" : "");
+
+			let divAlbum = "<div class='card'>"
+				+ "<div class='card-content'>"
+				+ "<div class='media'>"
+				+ "<div class='media-content'>"
+				+ "<p class='title is-4'>ID: " + data.album.id + "</p>"
+				+ "<p class='subtitle is-6'>" + data.album.title + "</p>"
+				+ "</div>"
+				+ "</div>"
+				+ "<p>Compartir con:</p>"
+				+ "<div class='columns'>"
+				+ "<div class='column'>"
+				+ "<label class='label'>UserId: </label>"
+				+ "<input id='inputUserId' class='input' type='number' value='" +  data.permisos.userId + "' disabled>"
+				+ "</div>"
+				+ "<div class='column'>"
+				+ "<label class='label'>Permisos: </label>"
+				+ "<div class='columns'>"
+				+ "<div class='column'>"
+				+ "<label class='checkbox'><input id='checkLectura' type='checkbox' " + lectura + "> Lectura</label>"
+				+ "</div>"
+				+ "<div class='column'>"
+				+ "<label class='checkbox'><input id='checkEscritura' type='checkbox' " + escritura + "> Escritura</label>"
+				+ "</div>"
+				+ "</div>"
+				+ "</div>"
+				+ "<div class='column'>"
+				+ "<button id='btnCompartir' class='button is-info is-success is-fullwidth btn-modal btn-compartir' onclick='updateAlbum(" + data.album.id + "," + data.permisos.userId + ")'>Guardar</button>"
+				+ "</div>"
+				+ "</div>"
+				+ "</div>"
+				+ "</div>";
+
+			document.getElementById("modalContent").innerHTML = divAlbum;
+
+		}).catch((e) => {
+			console.log(e.message);
+			alert("Ocurrió un error inesperado.");
+		});
+}
+
+function updateAlbum(albumId, userId) {
+	let btnCompartir = document.getElementById("btnCompartir");
+	btnCompartir.classList.add("is-loading");
+	btnCompartir.disabled = true;
+
+	let permisos = {
+		userId: userId,
+		albumId: albumId,
+		lectura: document.getElementById("checkLectura").checked,
+		escritura: document.getElementById("checkEscritura").checked
+	}
+
+	let url = urlApi + "/shared/update";
+
+	fetch(url, {
+		method: 'POST',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(permisos)
+	})
+		.then(response => response.json())
+		.then(data => {
+			console.log(data);
+			alert(data.message);
+			btnCompartir.classList.remove("is-loading");
+			btnCompartir.disabled = false;
+		}).catch((e) => {
+			console.log(e.message);
+			alert("Ocurrió un error inesperado.");
+		});
+
+}
+
+function getComment() {
+
+	let btnComment = document.getElementById("btnComment");
+	btnComment.classList.add("is-loading");
+	btnComment.disabled = true;
+
+	let inputCommment = document.getElementById("inputCommment").value;
+
+	let url = urlApi + "/user/comment?name=" + inputCommment;
+
+	fetch(url, { method: "GET" })
+		.then(response => response.json())
+		.then(data => {
+			let comment = data;
+
+			let divComment =
+				"<div class='columns'>"
+				+ "<div class='column'>"
+				+ "<div class='card'>"
+				+ "<div class='card-content'>"
+				+ "<div class='media'>"
+				+ "<div class='media-content'>"
+				+ "<p class='title is-4'>ID: " + comment.id + "</p>"
+				+ "<p class='subtitle is-6'><b>Name:</b> " + comment.name + "</p>"
+				+ "</div>"
+				+ "</div>"
+				+ "<div class='content'>"
+				+ "<p><b>Post id: </b>" + comment.postId + "</p>"
+				+ "<p><b>Email: </b>" + comment.email + "</p>"
+				+ "<p><b>Body: </b>" + comment.body + "</p>"
+				+ "</div>"
+				+ "</div>"
+				+ "</div>"
+				+ "</div>"
+				+ "</div>";
+
+			document.getElementById("content").innerHTML = divComment;
+
+			btnComment.classList.remove("is-loading");
+			btnComment.disabled = false;
+
+		}).catch((e) => {
+			console.log(e.message);
+			alert("Ocurrió un error inesperado.");
+		});
+}
+
+function getComments(userId) {
+
+	let btnComment = document.getElementById("btnComment");
+	btnComment.classList.add("is-loading");
+	btnComment.disabled = true;
+
+	let url = urlApi + "/user/comments?userId=" + userId;
+
+	fetch(url, { method: "GET" })
+		.then(response => response.json())
+		.then(data => {
+			let comments = data;
+
+			let divComments = "<div class='columns is-multiline'>";
+
+			comments.forEach((comment) => {
+				divComments += "<div class='column is-4'>"
+					+ "<div class='card'>"
+					+ "<div class='card-content'>"
+					+ "<div class='media'>"
+					+ "<div class='media-content'>"
+					+ "<p class='title is-4'>ID: " + comment.id + "</p>"
+					+ "<p class='subtitle is-6'>" + comment.name + "</p>"
+					+ "</div>"
+					+ "</div>"
+					+ "<div class='content'>"
+					+ "<p><b>Post id: </b>" + comment.postId + "</p>"
+					+ "<p><b>Email: </b>" + comment.email + "</p>"
+					+ "<p><b>Body: </b>" + comment.body + "</p>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>";
+			});
+
+			divComments += "</div>";
+
+			document.getElementById("content").innerHTML = divComments;
+
+			btnComment.classList.remove("is-loading");
+			btnComment.disabled = false;
+
+		}).catch((e) => {
+			console.log(e.message);
+			alert("Ocurrió un error inesperado.");
+		});
+}
+
+function searchUsers() {
+
+	let btnUsuarios = document.getElementById("btnUsuarios");
+	btnUsuarios.classList.add("is-loading");
+	btnUsuarios.disabled = true;
+
+	let permisos = {
+		userId: "",
+		albumId: document.getElementById("inputAlbum").value,
+		lectura: document.getElementById("checkLecturaSearch").checked,
+		escritura: document.getElementById("checkEscrituraSearch").checked
+	}
+
+	let url = urlApi + "/users/permisos";
+
+	fetch(url, {
+		method: 'POST',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(permisos)
+	})
+		.then(response => response.json())
+		.then(data => {
+			let users = data;
+			let divUsers = "<div class='columns is-multiline'>";
+
+			users.forEach((user) => {
+				divUsers += "<div class='column is-4'>"
+					+ "<div class='card'>"
+					+ "<div class='card-content'>"
+					+ "<div class='media'>"
+					+ "<div class='media-left'>"
+					+ "<figure class='image is-48x48'>"
+					+ "<img src='https://bulma.io/images/placeholders/96x96.png' alt='Placeholder image'>"
+					+ "</figure>"
+					+ "</div>"
+					+ "<div class='media-content'>"
+					+ "<p class='title is-4'>" + user.id + " - " + user.name + "</p>"
+					+ "<p class='subtitle is-6'>" + user.username + "</p>"
+					+ "</div>"
+					+ "</div>"
+					+ "<div class='content'>"
+					+ "<p><b>Email: </b>" + user.email + "</p>"
+					+ "<p><b>Phone: </b>" + user.phone + "</p>"
+					+ "<p><b>Website: </b><a>" + user.website + "</a></p>"
+					+ "<div class='columns'>"
+					+ "<div class='column'><button class='button is-info is-fullwidth btn-modal' onclick='moreInfoUser(" + JSON.stringify(user) + ")'>Más info</button></div>"
+					+ "<div class='column'><button class='button is-warning is-fullwidth' onclick='getAlbums(" + user.id + ")'>Ver álbumes</button></div>"
+					+ "<div class='column'><button class='button is-danger is-fullwidth' onclick='getPhotos(\"user\"," + user.id + ")'>Ver fotos</button></div>"
+					+ "</div>"
+					+ "<div class='columns'>"
+					+ "<div class='column'><button class='button is-success is-fullwidth' onclick='getSharedAlbums(" + user.id + ")'>Ver álbumes compartidos</button></div>"
+					+ "</div>"
+					+ "<div class='columns'>"
+					+ "<div class='column'><button class='button is-link is-fullwidth' onclick='getComments(" + user.id + ")'>Ver comentarios</button></div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>"
+					+ "</div>";
+			});
+
+			divUsers += "</div>";
+
+			document.getElementById("content").innerHTML = divUsers;
+
+			btnUsuarios.classList.remove("is-loading");
+			btnUsuarios.disabled = false;
+
+		}).catch((e) => {
+			console.log(e.message);
+			alert("Ocurrió un error inesperado.");
+		});
 }
